@@ -1,0 +1,34 @@
+package com.example.pos.entity;
+
+import com.example.pos.entity.enums.ProductCategory;
+import com.example.pos.entity.enums.UnitsOfMeasure;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.math.BigDecimal;
+import java.util.UUID;
+
+@Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Table(name = "products")
+public class Product {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
+
+    private String name;
+    private String barcode;
+    private BigDecimal salesPrice;
+    private BigDecimal purchasePrice;
+
+    @Enumerated(EnumType.STRING)
+    private UnitsOfMeasure unitsOfMeasure;
+
+    @Enumerated(EnumType.STRING)
+    private ProductCategory category;
+    private String imageUrl;
+}
