@@ -30,13 +30,13 @@ public class UserController {
         return ResponseEntity.ok(userService.getProfile(user));
     }
 
-    @PostMapping("/{marketId}/sellers")
+    @PostMapping("/sellers")
     @Operation(summary = "Sotuvchilarni qo'shish")
     public ResponseEntity<ApiResponse<String>> addSeller(
             @RequestBody UserRequest request,
-            @PathVariable UUID marketId
+            @AuthenticationPrincipal User user
     ){
-        return ResponseEntity.ok(userService.addSeller(request,marketId));
+        return ResponseEntity.ok(userService.addSeller(request,user));
     }
 
     @PutMapping("/profile")

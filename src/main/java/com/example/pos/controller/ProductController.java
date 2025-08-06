@@ -3,7 +3,6 @@ package com.example.pos.controller;
 import com.example.pos.dto.ApiResponse;
 import com.example.pos.dto.request.ProductRequest;
 import com.example.pos.dto.response.ProductResponse;
-import com.example.pos.entity.enums.ProductCategory;
 import com.example.pos.entity.enums.UnitsOfMeasure;
 import com.example.pos.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,9 +23,9 @@ public class ProductController {
     @PostMapping
     @Operation(summary = "Product qo'shish")
     public ResponseEntity<ApiResponse<String>> addProduct(@RequestBody ProductRequest request,
-                                                          @RequestParam ProductCategory category,
+                                                          @RequestParam UUID categoryId,
                                                           @RequestParam UnitsOfMeasure measure) {
-        return ResponseEntity.ok(productService.addProduct(request, category, measure));
+        return ResponseEntity.ok(productService.addProduct(request, categoryId, measure));
     }
 
     @GetMapping("/market/{marketId}")
@@ -45,8 +44,8 @@ public class ProductController {
     @Operation(summary = "Productni tahrirlash")
     public ResponseEntity<ApiResponse<String>> updateProduct(@RequestBody ProductRequest request,
                                                              @PathVariable UUID productId,
-                                                             @RequestParam ProductCategory category,
+                                                             @RequestParam UUID categoryId,
                                                              @RequestParam UnitsOfMeasure measure) {
-        return ResponseEntity.ok(productService.updateProduct(request, productId, category, measure));
+        return ResponseEntity.ok(productService.updateProduct(request, productId, categoryId, measure));
     }
 }

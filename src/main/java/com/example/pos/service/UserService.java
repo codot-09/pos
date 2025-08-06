@@ -17,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -32,12 +31,12 @@ public class UserService {
         return ApiResponse.success(mapper.toResponse(user));
     }
 
-    public ApiResponse<String> addSeller(UserRequest request, UUID marketId){
+    public ApiResponse<String> addSeller(UserRequest request, User owner){
         if (userRepository.existsByPhone(request.getPhone())){
             return ApiResponse.error("Sotuvchi mavjud");
         }
 
-        Market market = marketRepository.findById(marketId)
+        Market market = marketRepository.findByOwnerId(owner.getId())
                 .orElseThrow(() -> new DataNotFoundException("Market topilmadi"));
 
         if (!market.getOwner().isActive()){
@@ -67,19 +66,34 @@ public class UserService {
     }
 
     public ApiResponse<?> updateProfile(User user, ProfileUpdateRequest request) {
-        if (!user.getPhone().equals(request.getPhone()) &&
+
+        if (request.getPhone() != null &&
+                !request.getPhone().isBlank() &&
+                !user.getPhone().equals(request.getPhone()) &&
                 userRepository.existsByPhone(request.getPhone())) {
-            return ApiResponse.error("Foydalanuvchi mavjud");
+            return ApiResponse.error("Bu telefon raqami bilan boshqa foydalanuvchi mavjud");
         }
 
-        user.setName(request.getName());
-        user.setPhone(request.getPhone());
-        user.setPasswordHash(encoder.encode(request.getPassword()));
-        user.setImageUrl(request.getImageUrl());
+        if (request.getName() != null && !request.getName().isBlank()) {
+            user.setName(request.getName());
+        }
+
+        if (request.getPhone() != null && !request.getPhone().isBlank()) {
+            user.setPhone(request.getPhone());
+        }
+
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            user.setPasswordHash(encoder.encode(request.getPassword()));
+        }
+
+        if (request.getImageUrl() != null && !request.getImageUrl().isBlank()) {
+            user.setImageUrl(request.getImageUrl());
+        }
 
         userRepository.save(user);
 
-        if (!user.getPhone().equals(request.getPhone())) {
+        if (request.getPhone() != null && !request.getPhone().isBlank() &&
+                !request.getPhone().equals(user.getPhone())) {
             String token = jwtProvider.generateToken(user.getPhone());
             LoginResponse response = new LoginResponse(token, "Bearer", user.getRole().name());
             return ApiResponse.success(response);
