@@ -51,8 +51,8 @@ public class UserController {
     @GetMapping("/{marketId}/sellers")
     @Operation(summary = "Sotuvchilarni qidirish")
     public ResponseEntity<ApiResponse<List<UserResponse>>> getSellers(
-            @PathVariable UUID marketId
+            @AuthenticationPrincipal User user
     ){
-        return ResponseEntity.ok(userService.getSellers(marketId));
+        return ResponseEntity.ok(userService.getSellers(user));
     }
 }
