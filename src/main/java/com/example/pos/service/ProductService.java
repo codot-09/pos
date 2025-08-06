@@ -1,23 +1,19 @@
 package com.example.pos.service;
 
 import com.example.pos.dto.ApiResponse;
-import com.example.pos.dto.request.ProductPurchaseRequest;
 import com.example.pos.dto.request.ProductRequest;
 import com.example.pos.dto.response.ProductResponse;
+import com.example.pos.entity.Category;
 import com.example.pos.entity.Market;
 import com.example.pos.entity.Product;
-import com.example.pos.entity.ProductPurchase;
-import com.example.pos.entity.enums.ProductCategory;
 import com.example.pos.entity.enums.UnitsOfMeasure;
 import com.example.pos.exception.DataNotFoundException;
 import com.example.pos.mapper.ProductMapper;
+import com.example.pos.repository.CategoryRepository;
 import com.example.pos.repository.MarketRepository;
-import com.example.pos.repository.ProductPurchaseRepository;
 import com.example.pos.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,14 +23,21 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final MarketRepository marketRepository;
     private final ProductMapper mapper;
-    private final ProductPurchaseRepository purchaseRepository;
+    private final CategoryRepository categoryRepository;
 
-    public ApiResponse<String> addProduct(ProductRequest request, ProductCategory category, UnitsOfMeasure measure){
+    public ApiResponse<String> addProduct(ProductRequest request, UUID categoryId, UnitsOfMeasure measure){
         if (productRepository.existsByBarcodeAndMarketId(request.getBarcode(),request.getMarketId())){
             return ApiResponse.error("Mahsulot mavjud");
         }
         Market market = marketRepository.findById(request.getMarketId())
                 .orElseThrow(() -> new DataNotFoundException("Market topilmadi"));
+
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new DataNotFoundException("Kategoriya topilmadi"));
+
+        if (!category.isActive()){
+            return ApiResponse.error("Kategoriya aktiv emas");
+        }
 
         if (!market.getOwner().isActive()){
             return ApiResponse.error("Obuna bo'lish talab qilinadi");
@@ -49,6 +52,7 @@ public class ProductService {
                 .salesPrice(request.getSalesPrice())
                 .purchasePrice(request.getPurchasePrice())
                 .quantity(request.getCount())
+                .category(category)
                 .market(market)
                 .build();
 
@@ -70,9 +74,12 @@ public class ProductService {
         return ApiResponse.success(mapper.toResponse(product));
     }
 
-    public ApiResponse<String> updateProduct(ProductRequest request,UUID productId,ProductCategory category,UnitsOfMeasure measure){
+    public ApiResponse<String> updateProduct(ProductRequest request,UUID productId,UUID categoryId,UnitsOfMeasure measure){
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new DataNotFoundException("Mahsulot topilmadi"));
+
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new DataNotFoundException("Kategoriya topilmadi"));
 
         product.setName(request.getName());
         product.setBarcode(request.getBarcode());

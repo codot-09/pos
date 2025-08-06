@@ -1,6 +1,5 @@
 package com.example.pos.entity;
 
-import com.example.pos.entity.enums.ProductCategory;
 import com.example.pos.entity.enums.UnitsOfMeasure;
 import jakarta.persistence.*;
 import lombok.*;
@@ -28,8 +27,8 @@ public class Product {
     @Enumerated(EnumType.STRING)
     private UnitsOfMeasure unitsOfMeasure;
 
-    @Enumerated(EnumType.STRING)
-    private ProductCategory category;
+    @ManyToOne
+    private Category category;
     private String imageUrl;
 
     private Double quantity;
