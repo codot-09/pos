@@ -46,7 +46,10 @@ public class User implements UserDetails {
     @ManyToOne
     private User createdBy;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    private boolean active;
+
+    @ManyToOne
+    @JsonIgnore
     private Market market;
 
     @Override

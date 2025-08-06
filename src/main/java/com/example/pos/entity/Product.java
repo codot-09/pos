@@ -31,4 +31,9 @@ public class Product {
     @Enumerated(EnumType.STRING)
     private ProductCategory category;
     private String imageUrl;
+
+    private Double quantity;
+
+    @ManyToOne
+    private Market market;
 }

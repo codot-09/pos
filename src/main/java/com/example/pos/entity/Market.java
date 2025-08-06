@@ -21,7 +21,7 @@ public class Market {
     @Column(columnDefinition = "TEXT")
     private String address;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne
     private User owner;
 
     private String imageUrl;

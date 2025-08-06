@@ -19,10 +19,13 @@ public class Sales {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany
     private List<Product> products;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
+    private Market market;
+
+    @ManyToOne
     private User salesPerson;
 
     private BigDecimal totalPrice;

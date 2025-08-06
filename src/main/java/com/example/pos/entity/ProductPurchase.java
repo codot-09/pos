@@ -2,8 +2,10 @@ package com.example.pos.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
@@ -12,17 +14,18 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "debts")
-public class Debt {
+@Table(name = "purchases")
+public class ProductPurchase {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    private String debtor;
-    private String contact;
+    private Double quantity;
+    private BigDecimal price;
 
-    private BigDecimal debtAmount;
+    @CreationTimestamp
+    private LocalDate purchaseDate;
 
     @ManyToOne
-    private Sales sales;
+    private Product product;
 }

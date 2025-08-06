@@ -5,13 +5,13 @@ import com.example.pos.dto.request.MarketCreateRequest;
 import com.example.pos.dto.response.MarketResponse;
 import com.example.pos.entity.Market;
 import com.example.pos.entity.User;
+import com.example.pos.exception.DataNotFoundException;
 import com.example.pos.mapper.MarketMapper;
 import com.example.pos.repository.MarketRepository;
-import com.example.pos.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +20,10 @@ public class MarketService {
     private final MarketMapper mapper;
 
     public ApiResponse<String> createMarket(MarketCreateRequest request, User owner){
+        if (!owner.isActive()) {
+            return ApiResponse.error("Obuna bo'lish talab qilinadi");
+        }
+
         Market market = Market.builder()
                 .name(request.getName())
                 .address(request.getAddress())
@@ -32,9 +36,21 @@ public class MarketService {
         return ApiResponse.success("Market qo'shildi tasdiqlanishi kutilmoqda");
     }
 
-    public ApiResponse<List<MarketResponse>> findByOwner(User owner){
-        List<Market> markets = marketRepository.findByOwnerId(owner.getId());
+    public ApiResponse<MarketResponse> findByOwner(User owner){
+        Market market = marketRepository.findByOwnerId(owner.getId())
+                .orElseThrow(() -> new DataNotFoundException("Market topilmadi"));
 
-        return ApiResponse.success(mapper.toResponseList(markets));
+        return ApiResponse.success(mapper.toResponse(market));
+    }
+
+    public ApiResponse<MarketResponse> getById(UUID marketId){
+        Market market = marketRepository.findById(marketId)
+                .orElseThrow(() -> new DataNotFoundException("Market topilmadi"));
+
+        return ApiResponse.success(mapper.toResponse(market));
+    }
+
+    public ApiResponse<List<MarketResponse>> getAll(){
+        return ApiResponse.success(mapper.toResponseList(marketRepository.findAll()));
     }
 }

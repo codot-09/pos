@@ -15,7 +15,7 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/api/v1/files")
 @RequiredArgsConstructor
-@Tag(name = "Files", description = "Files API")
+@Tag(name = "Files", description = "Filelar bilan ishlash")
 public class FileController {
     private final CloudService cloudService;
 

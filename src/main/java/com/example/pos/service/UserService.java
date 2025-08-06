@@ -40,11 +40,16 @@ public class UserService {
         Market market = marketRepository.findById(marketId)
                 .orElseThrow(() -> new DataNotFoundException("Market topilmadi"));
 
+        if (!market.getOwner().isActive()){
+            return ApiResponse.error("Obuna bo'lish talab qilinadi");
+        }
+
         User user = User.builder()
                 .phone(request.getPhone())
                 .name(request.getName())
                 .passwordHash(encoder.encode(request.getPassword()))
                 .role(UserRole.SELLER)
+                .market(market)
                 .build();
 
         userRepository.save(user);
@@ -52,8 +57,8 @@ public class UserService {
         return ApiResponse.success("Sotuvchi qo'shildi");
     }
 
-    public ApiResponse<List<UserResponse>> getSellers(String field,UUID marketId){
-        List<User> sellers = userRepository.findByRoleAndNameOrPhone(field,marketId);
+    public ApiResponse<List<UserResponse>> getSellers(UUID marketId){
+        List<User> sellers = userRepository.findByRoleAndNameOrPhone(marketId);
 
         return ApiResponse.success(mapper.toResponseList(sellers));
     }

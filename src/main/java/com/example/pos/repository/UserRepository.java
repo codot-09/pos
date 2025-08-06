@@ -16,15 +16,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByPhone(String phone);
 
     @Query("""
-    SELECT u FROM User u
-    WHERE u.role = 'SELLER'
-    AND (
-        :field IS NULL OR
-        u.phone = :field OR
-        u.name = :field
-    )
-    AND u.market.id = :id
-""")
-    List<User> findByRoleAndNameOrPhone(@Param("field") String field,
-                                        @Param("id") UUID id);
+        SELECT u FROM User u
+        WHERE u.role = 'SELLER'
+        AND u.market.id = :id
+    """)
+    List<User> findByRoleAndNameOrPhone(@Param("id") UUID id);
 }
