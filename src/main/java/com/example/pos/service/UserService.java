@@ -57,8 +57,11 @@ public class UserService {
         return ApiResponse.success("Sotuvchi qo'shildi");
     }
 
-    public ApiResponse<List<UserResponse>> getSellers(UUID marketId){
-        List<User> sellers = userRepository.findByRoleAndNameOrPhone(marketId);
+    public ApiResponse<List<UserResponse>> getSellers(User owner){
+        Market market = marketRepository.findByOwnerId(owner.getId())
+                .orElseThrow(() -> new DataNotFoundException("Market topilmadi"));
+
+        List<User> sellers = userRepository.findByRoleAndNameOrPhone(market.getId());
 
         return ApiResponse.success(mapper.toResponseList(sellers));
     }
