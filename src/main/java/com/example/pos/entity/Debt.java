@@ -2,8 +2,10 @@ package com.example.pos.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -25,4 +27,7 @@ public class Debt {
 
     @ManyToOne
     private Sales sales;
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 }

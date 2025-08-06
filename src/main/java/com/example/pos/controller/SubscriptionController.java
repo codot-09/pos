@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/subscriptions")
@@ -20,13 +21,13 @@ public class SubscriptionController {
 
     private final SubscriptionService subscriptionService;
 
-    @PostMapping("/buy")
+    @PostMapping("/buy/{userId}")
     @Operation(summary = "Obuna sotib olish (foydalanuvchi tomonidan)")
     public ResponseEntity<ApiResponse<String>> buySubscription(
-            @AuthenticationPrincipal User user,
-            @RequestParam(defaultValue = "30") int days // default 30 kunlik
+            @RequestParam(defaultValue = "30") int days ,
+            @PathVariable UUID userId
     ) {
-        return ResponseEntity.ok(subscriptionService.buySubscription(user.getId(), days));
+        return ResponseEntity.ok(subscriptionService.buySubscription(userId, days));
     }
 
     @GetMapping

@@ -5,12 +5,14 @@ import com.example.pos.dto.request.UserRequest;
 import com.example.pos.dto.response.UserResponse;
 import com.example.pos.entity.User;
 import com.example.pos.entity.enums.UserRole;
+import com.example.pos.exception.DataNotFoundException;
 import com.example.pos.mapper.UserMapper;
 import com.example.pos.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -44,5 +46,15 @@ public class AdminService {
         List<User> users = userRepository.findAll();
 
         return ApiResponse.success(mapper.toResponseList(users));
+    }
+
+    public ApiResponse<String> deleteUser(UUID userId){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("Foydalanuvchi topilmadi"));
+
+        user.setActive(false);
+        userRepository.save(user);
+
+        return ApiResponse.success("Foydalanuvchi o'chirildi");
     }
 }
