@@ -15,7 +15,8 @@ public class MarketMapper {
                 market.getAddress(),
                 market.getImageUrl(),
                 market.isVerified(),
-                market.getOwner().getId()
+                market.getOwner().getId(),
+                market.getOwner().getName()
         );
     }
 

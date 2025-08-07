@@ -3,6 +3,7 @@ package com.example.pos.controller;
 import com.example.pos.dto.ApiResponse;
 import com.example.pos.dto.request.MarketCreateRequest;
 import com.example.pos.dto.response.MarketResponse;
+import com.example.pos.dto.response.ResPageable;
 import com.example.pos.entity.User;
 import com.example.pos.service.MarketService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,8 +41,12 @@ public class MarketController {
 
     @GetMapping("/all")
     @Operation(summary = "Barcha marketlarni ko'rish")
-    public ResponseEntity<ApiResponse<List<MarketResponse>>> getMarkets(){
-        return ResponseEntity.ok(marketService.getAll());
+    public ResponseEntity<ApiResponse<ResPageable>> getMarkets(
+            @RequestParam(required = false) String name,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        return ResponseEntity.ok(marketService.getAll(name,page,size));
     }
 
     @GetMapping("/{marketId}")

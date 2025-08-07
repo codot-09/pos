@@ -1,9 +1,11 @@
 package com.example.pos.service;
 
 import com.example.pos.dto.ApiResponse;
+import com.example.pos.dto.UserDTO;
 import com.example.pos.dto.request.ProfileUpdateRequest;
 import com.example.pos.dto.request.UserRequest;
 import com.example.pos.dto.response.LoginResponse;
+import com.example.pos.dto.response.ResPageable;
 import com.example.pos.dto.response.UserResponse;
 import com.example.pos.entity.Market;
 import com.example.pos.entity.User;
@@ -14,6 +16,8 @@ import com.example.pos.repository.MarketRepository;
 import com.example.pos.repository.UserRepository;
 import com.example.pos.security.JwtProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -26,6 +30,7 @@ public class UserService {
     private final UserMapper mapper;
     private final PasswordEncoder encoder;
     private final JwtProvider jwtProvider;
+    private final UserMapper userMapper;
 
     public ApiResponse<UserResponse> getProfile(User user){
         return ApiResponse.success(mapper.toResponse(user));
@@ -100,5 +105,25 @@ public class UserService {
         }
 
         return ApiResponse.success("Profil tahrirlandi");
+    }
+
+
+
+    public ApiResponse<ResPageable> searchUser(String name, String phoneNumber, UserRole userRole, int page, int size){
+        Page<User> users = userRepository.searchUsers(name, phoneNumber, userRole.name(), PageRequest.of(page, size));
+        if (users.getTotalElements() == 0) {
+            return ApiResponse.success("User topilmadi");
+        }
+
+        List<UserDTO> userDTOList = users.stream().map(userMapper::toUserDTO).toList();
+        ResPageable resPageable = ResPageable.builder()
+                .page(page)
+                .size(size)
+                .totalElements(users.getTotalElements())
+                .totalPage(users.getTotalPages())
+                .body(userDTOList)
+                .build();
+
+        return ApiResponse.success(resPageable);
     }
 }

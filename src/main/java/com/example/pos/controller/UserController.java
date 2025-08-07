@@ -3,8 +3,10 @@ package com.example.pos.controller;
 import com.example.pos.dto.ApiResponse;
 import com.example.pos.dto.request.ProfileUpdateRequest;
 import com.example.pos.dto.request.UserRequest;
+import com.example.pos.dto.response.ResPageable;
 import com.example.pos.dto.response.UserResponse;
 import com.example.pos.entity.User;
+import com.example.pos.entity.enums.UserRole;
 import com.example.pos.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -48,11 +50,25 @@ public class UserController {
         return ResponseEntity.ok(userService.updateProfile(user,updateRequest));
     }
 
-    @GetMapping("/{marketId}/sellers")
+    @GetMapping("/sellers")
     @Operation(summary = "Sotuvchilarni qidirish")
     public ResponseEntity<ApiResponse<List<UserResponse>>> getSellers(
             @AuthenticationPrincipal User user
     ){
         return ResponseEntity.ok(userService.getSellers(user));
+    }
+
+
+
+    @GetMapping("/search")
+    @Operation(summary = "Userlarni filter qilish uchun api")
+    public ResponseEntity<ApiResponse<ResPageable>> searchUsers(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String phone,
+            @RequestParam UserRole userRole,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+            ){
+        return ResponseEntity.ok(userService.searchUser(name,phone,userRole,page,size));
     }
 }

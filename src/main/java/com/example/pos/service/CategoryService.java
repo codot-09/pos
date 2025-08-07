@@ -14,12 +14,15 @@ import java.util.UUID;
 public class CategoryService {
     private final CategoryRepository categoryRepository;
 
-    public ApiResponse<String> addCategory(String name){
-        categoryRepository.save(
-                Category.builder()
-                        .name(name)
-                        .build()
-        );
+    public ApiResponse<String> addCategory(List<String> nameList){
+        for (String name : nameList) {
+            categoryRepository.save(
+                    Category.builder()
+                            .name(name)
+                            .active(true)
+                            .build()
+            );
+        }
 
         return ApiResponse.success("Kategoriya saqlandi");
     }

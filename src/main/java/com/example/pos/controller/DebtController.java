@@ -8,6 +8,7 @@ import com.example.pos.service.DebtService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
@@ -24,22 +25,30 @@ public class DebtController {
 
     @GetMapping("/market")
     @Operation(summary = "Marketdagi qarzlarni ko'rish")
-    public ApiResponse<Map<LocalDateTime, BigDecimal>> getDebtsByMarket(@AuthenticationPrincipal User user) {
-        return debtService.getDebtsByMarket(user);
+    public ResponseEntity<ApiResponse<Map<LocalDateTime, BigDecimal>>> getDebtsByMarket(@AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(debtService.getDebtsByMarket(user));
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Id bo'yicha qarzni ko'rish")
-    public ApiResponse<DebtResponse> getDebtById(@PathVariable UUID id) {
-        return debtService.getById(id);
+    public ResponseEntity<ApiResponse<DebtResponse>> getDebtById(@PathVariable UUID id) {
+        return ResponseEntity.ok(debtService.getById(id));
     }
 
     @PutMapping("/{id}/verify")
     @Operation(summary = "Qarzni tasdiqlash")
-    public ApiResponse<String> verifyDebt(
+    public ResponseEntity<ApiResponse<String>> verifyDebt(
             @RequestBody DebtRequest request,
             @PathVariable UUID id
     ) {
-        return debtService.verifyDebt(request, id);
+        return ResponseEntity.ok(debtService.verifyDebt(request, id));
+    }
+
+
+
+    @PostMapping("/{id}")
+    @Operation(summary = "Qarzni tulash uchun api")
+    public ResponseEntity<ApiResponse<String>> saveDebt(@PathVariable UUID id, @RequestParam BigDecimal price) {
+        return ResponseEntity.ok(debtService.postDebt(price, id));
     }
 }

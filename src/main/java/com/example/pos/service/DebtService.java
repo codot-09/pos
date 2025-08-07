@@ -5,11 +5,13 @@ import com.example.pos.dto.request.DebtRequest;
 import com.example.pos.dto.response.DebtResponse;
 import com.example.pos.entity.Debt;
 import com.example.pos.entity.Market;
+import com.example.pos.entity.Sales;
 import com.example.pos.entity.User;
 import com.example.pos.exception.DataNotFoundException;
 import com.example.pos.mapper.DebtMapper;
 import com.example.pos.repository.DebtRepository;
 import com.example.pos.repository.MarketRepository;
+import com.example.pos.repository.SaleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
@@ -25,6 +27,7 @@ public class DebtService {
     private final DebtRepository debtRepository;
     private final MarketRepository marketRepository;
     private final DebtMapper mapper;
+    private final SaleRepository saleRepository;
 
     public ApiResponse<String> verifyDebt(DebtRequest request, UUID id){
         Debt debt = debtRepository.findById(id)
@@ -59,4 +62,43 @@ public class DebtService {
 
         return ApiResponse.success(mapper.toResponse(debt));
     }
+
+
+    public ApiResponse<String> postDebt(BigDecimal price, UUID id){
+        // debt topdim
+        Debt debt = debtRepository.findById(id).orElseThrow(() -> new DataNotFoundException("Qarz yozuvi"));
+
+        // debtni ichidan salesni chiqarib oldim
+        Sales sales = debt.getSales();
+
+        //salesni pricega tulagan priceni qushdim
+        sales.setPayedPrice(sales.getPayedPrice().add(price));
+
+        // debtdan tulagan priceni ayirdim
+        debt.setDebtAmount(debt.getDebtAmount().subtract(price));
+
+        //agar sales totalPrice teng bulsa tulagan pricega paid buladi
+        if (sales.getTotalPrice().equals(sales.getPayedPrice())){
+            sales.setPaid(true);
+        }
+
+        // agar debtni price 0 ga teng bulsa uni o'chiradi
+        if (debt.getDebtAmount().compareTo(BigDecimal.ZERO) == 0){
+            debtRepository.delete(debt);
+        }
+
+        // hammasini saqledi
+        Sales save = saleRepository.save(sales);
+        debt.setSales(save);
+        debtRepository.save(debt);
+
+        return ApiResponse.success("Qarz yozuvi saqlandi");
+    }
 }
+
+
+
+
+
+
+

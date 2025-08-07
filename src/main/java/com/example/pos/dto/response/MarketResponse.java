@@ -17,4 +17,5 @@ public class MarketResponse {
     private String imageUrl;
     private boolean status;
     private UUID ownerId;
+    private String ownerName;
 }
