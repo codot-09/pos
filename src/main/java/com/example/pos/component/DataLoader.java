@@ -27,6 +27,7 @@ public class DataLoader implements CommandLineRunner {
                     .phone("998901234567")
                     .passwordHash(passwordEncoder.encode("admin123"))
                     .role(UserRole.ADMIN)
+                    .active(true)
                     .build();
 
             userRepository.save(user);

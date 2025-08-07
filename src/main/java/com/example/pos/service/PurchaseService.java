@@ -24,24 +24,26 @@ public class PurchaseService {
     private final PurchaseMapper mapper;
 
     @Transactional
-    public ApiResponse<String> purchaseProduct(ProductPurchaseRequest request) {
-        Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new DataNotFoundException("Mahsulot topilmadi"));
+    public ApiResponse<String> purchaseProduct(List<ProductPurchaseRequest> requestList) {
+        for (ProductPurchaseRequest request : requestList) {
+            Product product = productRepository.findById(request.getProductId())
+                    .orElseThrow(() -> new DataNotFoundException("Mahsulot topilmadi"));
 
-        ProductPurchase purchase = ProductPurchase.builder()
-                .product(product)
-                .quantity(request.getQuantity())
-                .price(request.getPrice())
-                .build();
+            ProductPurchase purchase = ProductPurchase.builder()
+                    .product(product)
+                    .quantity(request.getQuantity())
+                    .price(request.getPrice())
+                    .build();
 
-        purchaseRepository.save(purchase);
+            purchaseRepository.save(purchase);
 
-        double newTotalCount = product.getQuantity() + request.getQuantity();
-        product.setQuantity(newTotalCount);
+            double newTotalCount = product.getQuantity() + request.getQuantity();
+            product.setQuantity(newTotalCount);
 
-        product.setPurchasePrice(request.getPrice());
+            product.setPurchasePrice(request.getPrice());
 
-        productRepository.save(product);
+            productRepository.save(product);
+        }
 
         return ApiResponse.success("Mahsulot kirimi qo‘shildi");
     }

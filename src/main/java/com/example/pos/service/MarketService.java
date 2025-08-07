@@ -3,13 +3,18 @@ package com.example.pos.service;
 import com.example.pos.dto.ApiResponse;
 import com.example.pos.dto.request.MarketCreateRequest;
 import com.example.pos.dto.response.MarketResponse;
+import com.example.pos.dto.response.ResPageable;
 import com.example.pos.entity.Market;
 import com.example.pos.entity.User;
 import com.example.pos.exception.DataNotFoundException;
 import com.example.pos.mapper.MarketMapper;
 import com.example.pos.repository.MarketRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -50,7 +55,22 @@ public class MarketService {
         return ApiResponse.success(mapper.toResponse(market));
     }
 
-    public ApiResponse<List<MarketResponse>> getAll(){
-        return ApiResponse.success(mapper.toResponseList(marketRepository.findAll()));
+    public ApiResponse<ResPageable> getAll(String name ,int page, int size){
+        Page<Market> markets = marketRepository.searchByName(name, PageRequest.of(page, size));
+        if (markets.getTotalElements() == 0) {
+            return ApiResponse.error("Market topilmadi");
+        }
+
+        List<MarketResponse> marketResponseList = markets.stream().map(mapper::toResponse).toList();
+
+        ResPageable resPageable = ResPageable.builder()
+                .page(page)
+                .size(size)
+                .totalElements(markets.getTotalElements())
+                .totalPage(markets.getTotalPages())
+                .body(marketResponseList)
+                .build();
+
+        return ApiResponse.success(resPageable);
     }
 }

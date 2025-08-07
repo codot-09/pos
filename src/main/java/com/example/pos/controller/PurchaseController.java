@@ -23,9 +23,9 @@ public class PurchaseController {
     @PostMapping
     @Operation(summary = "Yangi mahsulot kirimini qo‘shish")
     public ResponseEntity<ApiResponse<String>> purchaseProduct(
-            @RequestBody ProductPurchaseRequest request
+            @RequestBody List<ProductPurchaseRequest> requestList
     ) {
-        return ResponseEntity.ok(purchaseService.purchaseProduct(request));
+        return ResponseEntity.ok(purchaseService.purchaseProduct(requestList));
     }
 
     @GetMapping("/market/{marketId}")

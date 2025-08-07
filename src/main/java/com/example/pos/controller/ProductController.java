@@ -3,6 +3,7 @@ package com.example.pos.controller;
 import com.example.pos.dto.ApiResponse;
 import com.example.pos.dto.request.ProductRequest;
 import com.example.pos.dto.response.ProductResponse;
+import com.example.pos.dto.response.ResPageable;
 import com.example.pos.entity.enums.UnitsOfMeasure;
 import com.example.pos.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,5 +48,20 @@ public class ProductController {
                                                              @RequestParam UUID categoryId,
                                                              @RequestParam UnitsOfMeasure measure) {
         return ResponseEntity.ok(productService.updateProduct(request, productId, categoryId, measure));
+    }
+
+
+
+    @GetMapping("/search")
+    @Operation(summary = "Product filtr api")
+    public ResponseEntity<ApiResponse<ResPageable>> searchProduct(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String categoryName,
+            @RequestParam(required = false) String barcode,
+            @RequestParam(required = false) UUID marketId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        return ResponseEntity.ok(productService.searchProduct(categoryName, name,marketId, barcode, page, size));
     }
 }

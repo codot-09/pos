@@ -3,6 +3,7 @@ package com.example.pos.service;
 import com.example.pos.dto.ApiResponse;
 import com.example.pos.dto.request.ProductRequest;
 import com.example.pos.dto.response.ProductResponse;
+import com.example.pos.dto.response.ResPageable;
 import com.example.pos.entity.Category;
 import com.example.pos.entity.Market;
 import com.example.pos.entity.Product;
@@ -13,6 +14,8 @@ import com.example.pos.repository.CategoryRepository;
 import com.example.pos.repository.MarketRepository;
 import com.example.pos.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
@@ -24,6 +27,7 @@ public class ProductService {
     private final MarketRepository marketRepository;
     private final ProductMapper mapper;
     private final CategoryRepository categoryRepository;
+    private final ProductMapper productMapper;
 
     public ApiResponse<String> addProduct(ProductRequest request, UUID categoryId, UnitsOfMeasure measure){
         if (productRepository.existsByBarcodeAndMarketId(request.getBarcode(),request.getMarketId())){
@@ -92,5 +96,24 @@ public class ProductService {
         productRepository.save(product);
 
         return ApiResponse.success("Mahsulot tahrirlandi");
+    }
+
+
+    public ApiResponse<ResPageable> searchProduct(String categoryName, String name, UUID marketId, String barcode, int page, int size){
+        Page<Product> products = productRepository.searchProduct(categoryName, name, marketId,barcode, PageRequest.of(page, size));
+        if (products.getTotalElements() == 0){
+            return ApiResponse.error("Mahsulot topilmadi");
+        }
+
+        List<ProductResponse> productResponseList = products.stream().map(productMapper::toResponse).toList();
+        ResPageable resPageable = ResPageable.builder()
+                .page(page)
+                .size(size)
+                .totalElements(products.getTotalElements())
+                .totalPage(products.getTotalPages())
+                .body(productResponseList)
+                .build();
+
+        return ApiResponse.success(resPageable);
     }
 }

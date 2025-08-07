@@ -18,8 +18,8 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<String>> addCategory(@RequestParam String name){
-        return ResponseEntity.ok(categoryService.addCategory(name));
+    public ResponseEntity<ApiResponse<String>> addCategory(@RequestBody List<String> nameList){
+        return ResponseEntity.ok(categoryService.addCategory(nameList));
     }
 
     @GetMapping
